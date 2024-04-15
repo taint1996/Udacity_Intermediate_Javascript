@@ -84,6 +84,12 @@ fetch('./dino.json')
       }
     };
 
+    const generateTitleSpecies = (dino) => {
+      return `<h3>${
+        dino.species === 'Pigeon' ? 'Bird' : `The ${dino.species}`
+      }</h3>`;
+    };
+
     // Generate Tiles for each Dino in Array
     const generateTitles = () => {
       const grid = document.getElementById('grid');
@@ -92,9 +98,13 @@ fetch('./dino.json')
         tile.classList.add('grid-item');
 
         tile.innerHTML = `
-            <h3>The ${dino.species}</h3>
+            ${generateTitleSpecies(dino)}
             <img src="./images/${dino.species.toString().toLowerCase()}.png" />
-            <p>${dino.getRamdomFact()}</p>
+            <p>${
+              dino.species === 'Pigeon'
+                ? 'All Birds are dinosaurs'
+                : dino.getRamdomFact()
+            }</p>
         `;
         return tile;
       });
@@ -103,11 +113,11 @@ fetch('./dino.json')
       // Add Human Title
       const createHumanTitle = document.createElement('div');
       createHumanTitle.classList.add('grid-item');
+      const { humanName } = setHumanData();
       createHumanTitle.innerHTML = `
-    <h3>${Human.name}</h3>
-    <img src="./images/human.png" alt="Human">
-    <p>No facts available for humans
-    </p>`;
+    <h3>${humanName}</h3>
+    <img src="./images/human.png" alt="Human" />
+    `;
       titles.splice(4, 0, createHumanTitle);
 
       grid.append(...titles);
@@ -131,14 +141,28 @@ fetch('./dino.json')
       Human.setWeight(humanWeight);
       Human.setHeight(humanHeight);
       Human.setDiet(humanDiet);
+
+      return { humanName, humanHeight, humanWeight, humanDiet };
     };
 
-    // On button click, prepare and display infographic
+    const isValidForm = () => {
+      const { humanName, humanHeight, humanWeight, humanDiet } = setHumanData();
+      if (!humanName || !humanHeight || !humanWeight || !humanDiet) {
+        alert(`These field (name, height, weight, inches) can'be be blank`);
+        return false;
+      }
+      return true;
+    };
+
+    // On button click 'Compare Me' to show list Dinosaurs
     document
       .getElementById('btn-compare')
-      .addEventListener('click', function () {
-        setHumanData();
-        removeForm();
-        generateTitles();
+      .addEventListener('click', function (e) {
+        e.preventDefault();
+
+        if (isValidForm()) {
+          removeForm();
+          generateTitles();
+        }
       });
   });
